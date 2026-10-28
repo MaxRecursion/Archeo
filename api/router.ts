@@ -1,6 +1,6 @@
-import { handleAnalyze } from '../lib/server/routes/analyze.ts'
-import { handleHealth } from '../lib/server/routes/health.ts'
-import { handleSource } from '../lib/server/routes/source.ts'
+import { handleAnalyze } from '../lib/server/routes/analyze.js'
+import { handleHealth } from '../lib/server/routes/health.js'
+import { handleSource } from '../lib/server/routes/source.js'
 
 const handlers = {
   analyze: handleAnalyze,

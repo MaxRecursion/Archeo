@@ -1,6 +1,6 @@
-import { RepositoryRequestSchema } from '../../../src/lib/validation/schemas.ts'
-import { BUDGETS } from './budgets.ts'
-import { SafeError } from './errors.ts'
+import { RepositoryRequestSchema } from '../../../src/lib/validation/schemas.js'
+import { BUDGETS } from './budgets.js'
+import { SafeError } from './errors.js'
 
 const OWNER = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/
 const REPOSITORY = /^[A-Za-z0-9_.-]{1,100}$/

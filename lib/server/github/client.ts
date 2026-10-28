@@ -1,6 +1,6 @@
-import { BUDGETS } from '../security/budgets.ts'
-import { SafeError } from '../security/errors.ts'
-import type { RepositoryIdentity } from '../security/validation.ts'
+import { BUDGETS } from '../security/budgets.js'
+import { SafeError } from '../security/errors.js'
+import type { RepositoryIdentity } from '../security/validation.js'
 
 const API_ORIGIN = 'https://api.github.com'
 const USER_AGENT = 'Codebase-Archaeologist/0.1'

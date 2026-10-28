@@ -1,6 +1,6 @@
-import { analyzeRepository } from '../analysis/analyze.ts'
-import { errorResponse } from '../security/errors.ts'
-import { parseRepositoryInput, readJsonBody } from '../security/validation.ts'
+import { analyzeRepository } from '../analysis/analyze.js'
+import { errorResponse } from '../security/errors.js'
+import { parseRepositoryInput, readJsonBody } from '../security/validation.js'
 
 export async function handleAnalyze(request: Request): Promise<Response> {
   if (request.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: { allow: 'POST' } })

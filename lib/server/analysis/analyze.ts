@@ -1,11 +1,11 @@
 import path from 'node:path'
 import { builtinModules } from 'node:module'
 import ts from 'typescript'
-import { AnalysisResultSchema, type AnalysisResultData } from '../../../src/lib/validation/schemas.ts'
-import { BUDGETS } from '../security/budgets.ts'
-import { SafeError } from '../security/errors.ts'
-import { validateRepositoryPath, type RepositoryIdentity } from '../security/validation.ts'
-import { GitHubClient, type GitHubTreeEntry } from '../github/client.ts'
+import { AnalysisResultSchema, type AnalysisResultData } from '../../../src/lib/validation/schemas.js'
+import { BUDGETS } from '../security/budgets.js'
+import { SafeError } from '../security/errors.js'
+import { validateRepositoryPath, type RepositoryIdentity } from '../security/validation.js'
+import { GitHubClient, type GitHubTreeEntry } from '../github/client.js'
 
 const ANALYZER_VERSION = '0.1.0'
 const SOURCE_EXTENSIONS = ['.js', '.jsx', '.ts', '.tsx'] as const

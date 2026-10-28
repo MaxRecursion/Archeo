@@ -1,5 +1,5 @@
 export type ErrorCode = 'INVALID_INPUT' | 'NOT_FOUND' | 'BRANCH_NOT_FOUND' | 'RATE_LIMITED' | 'GITHUB_UNAVAILABLE' | 'UNSUPPORTED_REPOSITORY' | 'SOURCE_NOT_FOUND' | 'TOO_LARGE' | 'METHOD_NOT_ALLOWED'
-import { ApiErrorSchema } from '../../../src/lib/validation/schemas.ts'
+import { ApiErrorSchema } from '../../../src/lib/validation/schemas.js'
 
 export class SafeError extends Error {
   constructor(public readonly code: ErrorCode, message: string, public readonly status: number) {

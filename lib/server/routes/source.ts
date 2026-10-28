@@ -1,8 +1,8 @@
-import { GitHubClient } from '../github/client.ts'
-import { BUDGETS } from '../security/budgets.ts'
-import { errorResponse, SafeError } from '../security/errors.ts'
-import { readJsonBody, validateRepositoryPath, type RepositoryIdentity } from '../security/validation.ts'
-import { SourceRequestSchema, SourceResponseSchema } from '../../../src/lib/validation/schemas.ts'
+import { GitHubClient } from '../github/client.js'
+import { BUDGETS } from '../security/budgets.js'
+import { errorResponse, SafeError } from '../security/errors.js'
+import { readJsonBody, validateRepositoryPath, type RepositoryIdentity } from '../security/validation.js'
+import { SourceRequestSchema, SourceResponseSchema } from '../../../src/lib/validation/schemas.js'
 
 const SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx'])
 const PREVIEW_MANIFESTS = new Set(['package.json', 'tsconfig.json', 'jsconfig.json'])
