@@ -61,14 +61,17 @@ No environment variables are required. Copy `.env.example` only if you need a re
 
 ## Vercel deployment
 
-Deploy this directory as its own Vercel project, separate from the parent AutoVerse project:
+The public repository is [MaxRecursion/Archeo](https://github.com/MaxRecursion/Archeo). It is connected to the Vercel project `archeo`; pushes to `main` trigger production deployments.
 
-1. Import the Git repository into Vercel and set **Root Directory** to `Archeo`.
-2. Select the Vite preset and Node.js 22. Keep the build command as `npm run build` and output directory as `dist` (also set in `vercel.json`).
-3. Leave environment variables empty for the default public, anonymous experience. Optionally add a server-side `GITHUB_TOKEN` if you have authorization to use one.
-4. Deploy. Vercel discovers `api/router.ts` as a Node.js Function. Explicit rewrites dispatch the three supported API paths to that function; the final SPA rewrite excludes API and asset paths.
+The Vercel project uses this repository root (`.`), Node.js 24, `npm run build`, and the `dist` output directory. These settings and API rewrites are recorded in `vercel.json`. The shared `api/router.ts` Node.js Function serves all three API routes. No environment variables are required; optionally add a server-side `GITHUB_TOKEN` to raise GitHub request quotas.
 
-The shared function has a 30-second Vercel maximum and the analyzer has a smaller internal 25-second budget. Source preview uses bounded GitHub requests. These are conservative request caps, not a guarantee that every repository fits a single function invocation. Vercel currently documents Node.js 22 and 24 runtimes; Node.js 22 is selected explicitly for this project. The 30-second cap is below the current Hobby plan's documented maximum. Review current [Node.js runtime versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions), [function duration limits](https://vercel.com/docs/functions/configuring-functions/duration), and [function limits](https://vercel.com/docs/functions/limitations) before changing them.
+The shared function has a 30-second Vercel maximum and the analyzer has a smaller internal 25-second budget. Source preview uses bounded GitHub requests. These are conservative request caps, not a guarantee that every repository fits a single function invocation. Review current [Node.js runtime versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions), [function duration limits](https://vercel.com/docs/functions/configuring-functions/duration), and [function limits](https://vercel.com/docs/functions/limitations) before changing them.
+
+The custom domain is attached to this Vercel project. Because `maxrecursion.dev` uses external DNS nameservers, create this DNS record at the domain's DNS provider to finish routing the subdomain:
+
+| Type | Host | Value |
+| --- | --- | --- |
+| CNAME | `archeo` | `973b9471297de02c.vercel-dns-017.com` |
 
 ## Security and privacy
 
