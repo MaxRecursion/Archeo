@@ -75,7 +75,16 @@ export class GitHubClient {
         }
         if (!response.ok) {
           if (response.status === 404) throw new SafeError('NOT_FOUND', 'Public repository not found. Check the repository name and visibility.', 404)
-          if (response.status === 403 && (response.headers.get('x-ratelimit-remaining') === '0' || response.headers.get('retry-after'))) throw new SafeError('RATE_LIMITED', 'GitHub’s anonymous API limit was reached. Wait a little and try again.', 429)
+          const remaining = response.headers.get('x-ratelimit-remaining')
+          const retryAfterHeader = response.headers.get('retry-after')
+          if ((response.status === 403 || response.status === 429) && (remaining === '0' || retryAfterHeader || response.status === 429)) {
+            const retryAfterSeconds = retryDelaySeconds(retryAfterHeader, response.headers.get('x-ratelimit-reset'))
+            const retryAt = new Date(Date.now() + retryAfterSeconds * 1_000).toUTCString()
+            const message = process.env.GITHUB_TOKEN
+              ? `GitHub’s API quota for this app has been reached. Try again after ${retryAt}.`
+              : `GitHub’s anonymous API quota is shared by everyone using this app and is currently exhausted. Try again after ${retryAt}. The app owner can restore capacity by adding a server-side GITHUB_TOKEN to the Vercel project and redeploying.`
+            throw new SafeError('RATE_LIMITED', message, 429, retryAfterSeconds)
+          }
           if (response.status === 403) throw new SafeError('GITHUB_UNAVAILABLE', 'GitHub refused this request. The repository may be unavailable to anonymous API access.', 502)
           if (response.status >= 500) throw new SafeError('GITHUB_UNAVAILABLE', 'GitHub is temporarily unavailable. Please try again shortly.', 502)
           throw new SafeError('GITHUB_UNAVAILABLE', 'GitHub rejected the repository request.', 502)
@@ -99,6 +108,21 @@ export class GitHubClient {
     }
     throw new SafeError('GITHUB_UNAVAILABLE', 'GitHub could not be reached. Please try again shortly.', 502)
   }
+}
+
+function retryDelaySeconds(retryAfter: string | null, resetAt: string | null): number {
+  const now = Date.now()
+  const retrySeconds = retryAfter === null ? Number.NaN : Number(retryAfter)
+  const retryDate = retryAfter === null ? Number.NaN : Date.parse(retryAfter)
+  const resetSeconds = resetAt === null ? Number.NaN : Number(resetAt)
+  const delay = Number.isFinite(retrySeconds) && retrySeconds > 0
+    ? retrySeconds
+    : Number.isFinite(retryDate) && retryDate > now
+      ? (retryDate - now) / 1_000
+      : Number.isFinite(resetSeconds) && resetSeconds > 0
+        ? resetSeconds - now / 1_000
+        : 60
+  return Math.max(1, Math.min(86_400, Math.ceil(delay)))
 }
 
 async function readBounded(response: Response, maxBytes: number): Promise<string> {

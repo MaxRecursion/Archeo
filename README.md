@@ -55,15 +55,15 @@ npm run test:e2e
 
 ## Environment variables
 
-No environment variables are required. Copy `.env.example` only if you need a reminder of the optional setting.
+No environment variables are required for local development. Copy `.env.example` only if you need a reminder of the optional setting.
 
-- Optional `GITHUB_TOKEN`: server-side only; can raise GitHub REST API request quotas. Keep it in local server environment or Vercel Function environment variables. Never use a `VITE_*` name.
+- `GITHUB_TOKEN` is optional for local development, but recommended for the public Vercel deployment. Without it, visitors share the deployment's anonymous GitHub API quota, which currently allows 60 unauthenticated requests per hour per IP. Set it as a server-side Vercel environment variable; never use a `VITE_*` name or commit the token.
 
 ## Vercel deployment
 
 The public repository is [MaxRecursion/Archeo](https://github.com/MaxRecursion/Archeo). It is connected to the Vercel project `archeo`; pushes to `main` trigger production deployments.
 
-The Vercel project uses this repository root (`.`), Node.js 24, `npm run build`, and the `dist` output directory. These settings and API rewrites are recorded in `vercel.json`. The shared `api/router.ts` Node.js Function serves all three API routes. No environment variables are required; optionally add a server-side `GITHUB_TOKEN` to raise GitHub request quotas.
+The Vercel project uses this repository root (`.`), Node.js 24, `npm run build`, and the `dist` output directory. These settings and API rewrites are recorded in `vercel.json`. The shared `api/router.ts` Node.js Function serves all three API routes. Add a fine-grained GitHub token with read-only access to public repository contents directly in Vercel Project Settings → Environment Variables, select Production, then redeploy. From this repository you can also run `vercel env add GITHUB_TOKEN --environment production --scope max-recursion`; the CLI prompts for the secret. Never put the token in source control, a `VITE_*` variable, or chat.
 
 The shared function has a 30-second Vercel maximum and the analyzer has a smaller internal 25-second budget. Source preview uses bounded GitHub requests. These are conservative request caps, not a guarantee that every repository fits a single function invocation. Review current [Node.js runtime versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions), [function duration limits](https://vercel.com/docs/functions/configuring-functions/duration), and [function limits](https://vercel.com/docs/functions/limitations) before changing them.
 

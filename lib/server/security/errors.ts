@@ -2,7 +2,7 @@ export type ErrorCode = 'INVALID_INPUT' | 'NOT_FOUND' | 'BRANCH_NOT_FOUND' | 'RA
 import { ApiErrorSchema } from '../../../src/lib/validation/schemas.js'
 
 export class SafeError extends Error {
-  constructor(public readonly code: ErrorCode, message: string, public readonly status: number) {
+  constructor(public readonly code: ErrorCode, message: string, public readonly status: number, public readonly retryAfterSeconds?: number) {
     super(message)
     this.name = 'SafeError'
   }
@@ -10,7 +10,7 @@ export class SafeError extends Error {
 
 export function errorResponse(error: unknown): Response {
   if (error instanceof SafeError) {
-    const headers = error.code === 'RATE_LIMITED' ? { 'retry-after': '60' } : undefined
+    const headers = error.code === 'RATE_LIMITED' ? { 'retry-after': String(error.retryAfterSeconds ?? 60) } : undefined
     return Response.json(ApiErrorSchema.parse({ error: error.message, code: error.code }), { status: error.status, headers })
   }
   return Response.json(ApiErrorSchema.parse({ error: 'GitHub could not be reached. Please try again shortly.', code: 'GITHUB_UNAVAILABLE' }), { status: 502 })

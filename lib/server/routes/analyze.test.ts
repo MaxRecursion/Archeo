@@ -2,7 +2,7 @@
 import { handleAnalyze } from './analyze.ts'
 
 describe('analysis endpoint failures', () => {
-  afterEach(() => vi.unstubAllGlobals())
+  afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs() })
 
   it('rejects unsupported hosts before contacting GitHub', async () => {
     const fetchMock = vi.fn()
@@ -24,11 +24,18 @@ describe('analysis endpoint failures', () => {
     await expect(response.json()).resolves.toMatchObject({ code: 'BRANCH_NOT_FOUND', error: expect.stringContaining('deleted') })
   })
 
-  it('surfaces GitHub anonymous API rate limits', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => Response.json({ message: 'rate limit exceeded' }, { status: 403, headers: { 'x-ratelimit-remaining': '0' } })))
+  it('surfaces the shared anonymous API quota reset and recovery path', async () => {
+    vi.stubEnv('GITHUB_TOKEN', '')
+    const resetAt = Math.floor(Date.now() / 1_000) + 300
+    vi.stubGlobal('fetch', vi.fn(async () => Response.json({ message: 'rate limit exceeded' }, { status: 403, headers: { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': String(resetAt) } })))
     const response = await handleAnalyze(post({ repository: 'acme/demo', branch: 'main' }))
     expect(response.status).toBe(429)
-    await expect(response.json()).resolves.toMatchObject({ code: 'RATE_LIMITED' })
+    expect(Number(response.headers.get('retry-after'))).toBeGreaterThanOrEqual(299)
+    expect(Number(response.headers.get('retry-after'))).toBeLessThanOrEqual(300)
+    await expect(response.json()).resolves.toMatchObject({
+      code: 'RATE_LIMITED',
+      error: expect.stringContaining('shared by everyone using this app'),
+    })
   })
 })
 
