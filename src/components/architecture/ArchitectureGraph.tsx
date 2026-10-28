@@ -40,10 +40,10 @@ export function ArchitectureGraph({ result, selectedNodeId, onSelectNode }: { re
     target: edge.target,
     label: edge.label,
     type: 'smoothstep',
-    markerEnd: { type: MarkerType.ArrowClosed, color: edge.status === 'unresolved' ? '#fb923c' : '#64748b' },
-    style: { stroke: edge.status === 'unresolved' ? '#fb923c' : '#526174', strokeWidth: 1.4, strokeDasharray: edge.status === 'unresolved' ? '4 4' : undefined },
-    labelStyle: { fill: '#94a3b8', fontSize: 10 },
-    labelBgStyle: { fill: '#101317', fillOpacity: 0.95 },
+    markerEnd: { type: MarkerType.ArrowClosed, color: edge.status === 'unresolved' ? '#a65b25' : '#8d8a82' },
+    style: { stroke: edge.status === 'unresolved' ? '#a65b25' : '#8d8a82', strokeWidth: 1.4, strokeDasharray: edge.status === 'unresolved' ? '4 4' : undefined },
+    labelStyle: { fill: '#555a6a', fontSize: 11 },
+    labelBgStyle: { fill: '#fbfaf7', fillOpacity: 0.95 },
     labelBgPadding: [5, 3] as [number, number],
   })), [graph.edges])
 
@@ -88,10 +88,10 @@ export function ArchitectureGraph({ result, selectedNodeId, onSelectNode }: { re
         elementsSelectable
         proOptions={{ hideAttribution: false }}
         defaultEdgeOptions={{ type: 'smoothstep' }}
-      ><Background color="#334155" gap={22} size={1} /><MiniMap pannable zoomable nodeColor={(node) => node.type === 'arch' ? colorFor((node.data as unknown as FlowNodeData).kind) : '#64748b'} maskColor="rgba(8, 10, 12, 0.74)" /><Controls showInteractive={false} /></ReactFlow>}
+      ><Background color="#d4d1c7" gap={22} size={1} /><MiniMap pannable zoomable nodeColor={(node) => node.type === 'arch' ? colorFor((node.data as unknown as FlowNodeData).kind) : '#8d8a82'} maskColor="rgba(251, 250, 247, 0.75)" /><Controls showInteractive={false} /></ReactFlow>}
     </div>
     {activeMode === 'overview' && <div className="graph-hint">Select <strong>Files</strong> to inspect source-level import links.</div>}
   </section>
 }
 
-function colorFor(kind: string) { return kind === 'project' ? '#60a5fa' : kind === 'module' ? '#a78bfa' : kind === 'file' ? '#34d399' : kind === 'package' ? '#fbbf24' : '#fb923c' }
+function colorFor(kind: string) { return kind === 'project' ? '#7777ee' : kind === 'module' ? '#bca6df' : kind === 'file' ? '#8bbca0' : kind === 'package' ? '#e6c84e' : '#a65b25' }

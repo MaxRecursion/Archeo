@@ -6,5 +6,6 @@ import '@fontsource-variable/space-grotesk'
 import '@fontsource-variable/jetbrains-mono'
 import './styles/globals.css'
 import '@xyflow/react/dist/style.css'
+import './styles/workspace.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>)
