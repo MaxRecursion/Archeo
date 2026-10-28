@@ -16,6 +16,7 @@ export class GitHubClient {
 
   async repository(identity: RepositoryIdentity): Promise<GitHubRepository> {
     const data = await this.json(`/repos/${segment(identity.owner)}/${segment(identity.repository)}`)
+    if (typeof data.private !== 'boolean') throw new SafeError('GITHUB_UNAVAILABLE', 'GitHub returned invalid repository visibility metadata.', 502)
     return { defaultBranch: stringField(data, 'default_branch'), private: data.private === true, size: numberField(data, 'size') }
   }
 
@@ -30,6 +31,17 @@ export class GitHubClient {
       if (error instanceof SafeError && error.code === 'NOT_FOUND') throw new SafeError('BRANCH_NOT_FOUND', `Branch “${identity.branch}” was not found in this repository.`, 404)
       throw error
     }
+  }
+
+  async commit(identity: RepositoryIdentity, ref: string): Promise<string> {
+    const data = await this.json(`/repos/${segment(identity.owner)}/${segment(identity.repository)}/commits/${segment(ref)}`)
+    const sha = stringField(data, 'sha')
+    if (!/^[a-f0-9]{40}$/i.test(sha)) throw new SafeError('GITHUB_UNAVAILABLE', 'GitHub returned an invalid commit identifier.', 502)
+    return sha.toLowerCase()
+  }
+
+  async compare(identity: RepositoryIdentity, baseSha: string, headSha: string): Promise<Record<string, unknown>> {
+    return this.json(`/repos/${segment(identity.owner)}/${segment(identity.repository)}/compare/${segment(baseSha)}...${segment(headSha)}`, 3 * 1_024 * 1_024)
   }
 
   async tree(identity: RepositoryIdentity, commitSha: string): Promise<GitHubTree> {

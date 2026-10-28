@@ -1,11 +1,12 @@
 import type { IncomingMessage } from 'node:http'
 import { defineConfig, type Plugin } from 'vitest/config'
-import type { ViteDevServer } from 'vite'
+import { loadEnv, type ViteDevServer } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { handleAnalyze } from './lib/server/routes/analyze.ts'
 import { handleHealth } from './lib/server/routes/health.ts'
 import { handleSource } from './lib/server/routes/source.ts'
+import { handleChangeImpact } from './lib/server/routes/changeImpact.ts'
 
 function localApi(): Plugin {
   return {
@@ -20,6 +21,7 @@ function registerApi(server: Pick<ViteDevServer, 'middlewares'>) {
         '/api/analyze': handleAnalyze,
         '/api/source': handleSource,
         '/api/health': handleHealth,
+        '/api/change-impact': handleChangeImpact,
       }
       server.middlewares.use(async (req, res, next) => {
         const pathname = new URL(req.url || '/', 'http://localhost').pathname
@@ -33,9 +35,9 @@ function registerApi(server: Pick<ViteDevServer, 'middlewares'>) {
         }
         try {
           const body = await readBody(req, 8_192)
-          const response = await handler(new Request(`http://localhost${req.url}`, {
+          const response = await handler(new Request(`http://${req.headers.host || 'localhost'}${req.url}`, {
             method: req.method,
-            headers: { 'content-type': req.headers['content-type'] || 'application/json' },
+            headers: { 'content-type': req.headers['content-type'] || 'application/json', ...(req.headers.authorization ? { authorization: req.headers.authorization } : {}), ...(req.headers.origin ? { origin: req.headers.origin } : {}) },
             body: req.method === 'POST' ? body : undefined,
           }))
           res.statusCode = response.status
@@ -64,7 +66,12 @@ async function readBody(req: IncomingMessage, maxBytes: number): Promise<string>
   return Buffer.concat(chunks).toString('utf8')
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  for (const name of ['GITHUB_TOKEN', 'TYPESAFE_API_KEY', 'TYPESAFE_MODEL', 'CHANGE_IMPACT_ACCESS_TOKEN']) {
+    if (!process.env[name] && env[name]) process.env[name] = env[name]
+  }
+  return {
   plugins: [react(), tailwindcss(), localApi()],
   resolve: { alias: { '@': new URL('./src', import.meta.url).pathname } },
   test: {
@@ -74,4 +81,5 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}', 'lib/**/*.test.ts'],
     css: false,
   },
+  }
 })

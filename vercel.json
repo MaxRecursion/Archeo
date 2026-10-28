@@ -6,6 +6,7 @@
     "api/router.ts": { "maxDuration": 30 }
   },
   "rewrites": [
+    { "source": "/api/change-impact", "destination": "/api/router?route=change-impact" },
     { "source": "/api/analyze", "destination": "/api/router?route=analyze" },
     { "source": "/api/source", "destination": "/api/router?route=source" },
     { "source": "/api/health", "destination": "/api/router?route=health" },

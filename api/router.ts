@@ -1,11 +1,13 @@
 import { handleAnalyze } from '../lib/server/routes/analyze.js'
 import { handleHealth } from '../lib/server/routes/health.js'
 import { handleSource } from '../lib/server/routes/source.js'
+import { handleChangeImpact } from '../lib/server/routes/changeImpact.js'
 
 const handlers = {
   analyze: handleAnalyze,
   source: handleSource,
   health: handleHealth,
+  'change-impact': handleChangeImpact,
 } as const
 
 export default {

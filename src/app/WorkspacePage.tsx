@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Brand } from '@/components/Brand'
 import { FileExplorer } from '@/components/explorer/FileExplorer'
 import { DetailsPanel } from '@/components/insights/DetailsPanel'
+import { ChangeImpactPanel } from '@/components/impact/ChangeImpactPanel'
 import { useAnalysis } from '@/features/analysis/AnalysisContext'
 import { analyzeRepository, ApiError } from '@/lib/api/client'
 
@@ -52,7 +53,7 @@ export function WorkspacePage() {
     <header className="workspace-topbar">
       <div className="workspace-brand"><Brand compact /><span className="topbar-divider" /><a className="repo-identity" href={currentAnalysis.repository.url} target="_blank" rel="noreferrer"><span>{currentAnalysis.repository.owner}</span><b>/</b>{currentAnalysis.repository.name}<ExternalLink size={12} /></a></div>
       <div className="workspace-run-meta"><label><GitBranch size={14} /><Input aria-label="Analysis branch" value={branch} onChange={(event) => setBranch(event.target.value)} /></label><span className="commit-chip"><CircleDot size={12} />{currentAnalysis.commitSha.slice(0, 10)}</span><a className="commit-link" href={currentAnalysis.commitUrl} target="_blank" rel="noreferrer" aria-label="View analyzed commit"><ExternalLink size={13} /></a></div>
-      <div className="workspace-actions"><Button variant="secondary" size="sm" onClick={reanalyze} disabled={loading || !branch.trim()}>{loading ? <LoaderCircle className="spin" size={14} /> : <RefreshCw size={14} />}<span>Reanalyze</span></Button><Button variant="ghost" size="sm" onClick={clearAnalysis}><Trash2 size={14} /><span>Clear</span></Button></div>
+      <div className="workspace-actions"><Button variant="secondary" size="sm" onClick={() => document.getElementById('change-impact')?.scrollIntoView({ block: 'start' })} aria-label="Open change impact analysis"><CircleDot size={14} /><span>Change impact</span></Button><Button variant="secondary" size="sm" onClick={reanalyze} disabled={loading || !branch.trim()}>{loading ? <LoaderCircle className="spin" size={14} /> : <RefreshCw size={14} />}<span>Reanalyze</span></Button><Button variant="ghost" size="sm" onClick={clearAnalysis}><Trash2 size={14} /><span>Clear</span></Button></div>
     </header>
     {error && <div className="workspace-error" role="alert"><AlertTriangle size={15} />{error}<button onClick={() => setError('')} aria-label="Dismiss error">×</button></div>}
     <div className="workspace-grid">
@@ -68,6 +69,7 @@ export function WorkspacePage() {
         </div>
         {currentAnalysis.partial && <div className="partial-banner"><AlertTriangle size={14} /><span>Partial analysis. This graph covers {currentAnalysis.counts.analyzedFiles} of {currentAnalysis.counts.discoveredFiles} supported source files.</span><button onClick={() => document.getElementById('analysis-warnings')?.scrollIntoView({ behavior: 'smooth' })}>View limits</button></div>}
         <div className="graph-wrap"><Suspense fallback={<div className="graph-loading"><LoaderCircle className="spin" size={18} />Loading architecture map…</div>}><ArchitectureGraph result={currentAnalysis} selectedNodeId={selectedNodeId} onSelectNode={selectNode} /></Suspense></div>
+        <ChangeImpactPanel key={`${currentAnalysis.repository.owner}/${currentAnalysis.repository.name}/${currentAnalysis.commitSha}`} analysis={currentAnalysis} />
         <section className="analysis-footer" id="analysis-warnings"><div className="analysis-footer-heading"><div><div className="panel-kicker">ANALYSIS NOTES</div><span>Run at {new Date(currentAnalysis.analyzedAt).toLocaleString()}</span></div><a href={currentAnalysis.commitUrl} target="_blank" rel="noreferrer">{currentAnalysis.commitSha.slice(0, 10)} <ExternalLink size={12} /></a></div>
           {currentAnalysis.warnings.length ? <ul>{currentAnalysis.warnings.slice(0, 6).map((warning) => <li key={warning}><AlertTriangle size={13} />{warning}</li>)}</ul> : <p className="clean-run"><Check size={13} />No truncation or file-size warnings were reported for this run.</p>}
           <div className="analysis-counts">{currentAnalysis.counts.discoveredFiles} discovered <span>·</span> {currentAnalysis.counts.analyzedFiles} parsed <span>·</span> {currentAnalysis.counts.skippedFiles} skipped <span>·</span> {(currentAnalysis.counts.sourceBytes / 1_024).toFixed(0)} KiB read</div>

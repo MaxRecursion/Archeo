@@ -54,7 +54,7 @@ export function HomePage() {
           {loading && <div className="loading-note" role="status"><span className="loading-bar" /> Resolving the branch and reading bounded source files…</div>}
           <div className="sample-row"><span>Try the live demo</span><button type="button" disabled={loading} onClick={() => { setRepository('sindresorhus/is'); setBranch('main'); void runAnalysis('sindresorhus/is', 'main') }}>sindresorhus/is <ArrowRight size={12} /></button></div>
         </form>
-        <div className="scope-note"><strong>SUPPORTED NOW</strong><span>Public GitHub · JavaScript + TypeScript · static imports and exports</span><small>No runtime call tracing. Large or truncated repositories are clearly marked partial.</small></div>
+        <div className="scope-note"><strong>SUPPORTED NOW</strong><span>Public GitHub · JavaScript + TypeScript · static imports and exports</span><small>Explore change impact in the workspace: free deterministic demo, or operator-enabled Jev decisions. Partial evidence is explicit.</small></div>
       </div>
       <div className="hero-art" aria-label="Abstract preview of a codebase dependency graph">
         <div className="art-label"><span>ILLUSTRATIVE GRAPH</span><span>VISUAL EXAMPLE · NOT REPOSITORY DATA</span></div>
@@ -73,6 +73,6 @@ export function HomePage() {
       </div>
     </section>
     <section className="landing-features"><div><Network size={17} /><span>Interactive dependency graph</span></div><div><ShieldCheck size={17} /><span>Verified source evidence</span></div><div><LockKeyhole size={17} /><span>No code execution or storage</span></div><div><Sparkles size={17} /><span>JavaScript + TypeScript</span></div></section>
-    <footer className="landing-footer"><span>Reads public GitHub repositories at a fixed commit.</span><span>Bounded analysis · no AI · no account required</span></footer>
+    <footer className="landing-footer"><span>Reads public GitHub repositories at a fixed commit.</span><span>Source-backed graph · optional Jev change assessment · demo needs no account</span></footer>
   </main>
 }
