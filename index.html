@@ -4,6 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#FBFAF7" />
+    <script>
+      (() => {
+        let saved = null
+        try { saved = localStorage.getItem('archeo-theme') } catch {}
+        const theme = saved === 'light' || saved === 'dark'
+          ? saved
+          : typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = theme
+        document.documentElement.style.colorScheme = theme
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'dark' ? '#15151a' : '#FBFAF7')
+      })()
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="description" content="Understand any codebase. See how everything connects." />
     <title>Archeo — Understand any codebase</title>

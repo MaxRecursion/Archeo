@@ -17,6 +17,7 @@ Application: [archeo-sigma.vercel.app](https://archeo-sigma.vercel.app). Portfol
 - Search the repository and graph, filter node kinds, collapse side panels, and switch between overview and file detail.
 - Browse source and manifests at the pinned commit, export the visible graph as SVG, and clear page state.
 - Run the sample repository through the same API and analyzer as user input.
+- Switch between light and dark mode; the initial appearance follows your device, and an explicit selection is saved across visits.
 
 ### Jev change assessment
 
@@ -72,6 +73,8 @@ npm run evaluate
 `npm run test:e2e` builds the production assets and runs Playwright against Vite Preview. The UI tests stub HTTP responses; analyzer integration tests mock GitHub and do not depend on live GitHub availability. To try the real sample, click **sindresorhus/is** on the landing page.
 
 ## Environment variables
+
+For the full activation walkthrough, follow [Jev and GitHub key setup](docs/setup-keys.md): obtain the two provider keys, generate the app operator password, configure the existing Vercel project, redeploy, and verify a live comparison.
 
 No environment variables are required for graph analysis or the deterministic demo. For optional live inference, copy `.env.example` to `.env.local`; Vite middleware loads only the documented server settings. Restart the dev server after changing them. Never use `VITE_*` for credentials.
 

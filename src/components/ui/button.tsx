@@ -2,7 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import type { ButtonHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
-const styles = cva('ui-button inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0000ee] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45', {
+const styles = cva('ui-button inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-[var(--canvas)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45', {
   variants: {
     variant: {
       primary: 'button-primary',

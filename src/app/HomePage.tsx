@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowDown, ArrowRight, Check, Code2, FileCode2, Folder, GitBranch, Layers3, LoaderCircle, LockKeyhole, MousePointer2, Network, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { Brand } from '@/components/Brand'
 import { useAnalysis } from '@/features/analysis/AnalysisContext'
 import { analyzeRepository, ApiError } from '@/lib/api/client'
@@ -40,7 +41,7 @@ export function HomePage() {
     <a className="skip-link" href="#repository">Skip to repository</a>
     <header className="landing-nav">
       <Brand />
-      <nav aria-label="Main navigation"><a className="nav-how" href="#how-it-works">How it works <ArrowDown size={13} /></a><a className="nav-github" href="https://github.com/MaxRecursion/Archeo" target="_blank" rel="noreferrer"><GitBranch size={17} /><span>View on GitHub</span><ArrowRight size={14} /></a></nav>
+      <nav aria-label="Main navigation"><ThemeToggle /><a className="nav-how" href="#how-it-works">How it works <ArrowDown size={13} /></a><a className="nav-github" href="https://github.com/MaxRecursion/Archeo" target="_blank" rel="noreferrer"><GitBranch size={17} /><span>View on GitHub</span><ArrowRight size={14} /></a></nav>
     </header>
     <section className="hero-wrap">
       <div className="hero-copy">

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AlertTriangle, Check, ChevronLeft, ChevronRight, CircleDot, ExternalLink, GitBranch, LoaderCircle, PanelLeftClose, PanelRightClose, RefreshCw, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { Brand } from '@/components/Brand'
 import { FileExplorer } from '@/components/explorer/FileExplorer'
 import { DetailsPanel } from '@/components/insights/DetailsPanel'
@@ -53,7 +54,7 @@ export function WorkspacePage() {
     <header className="workspace-topbar">
       <div className="workspace-brand"><Brand compact /><span className="topbar-divider" /><a className="repo-identity" href={currentAnalysis.repository.url} target="_blank" rel="noreferrer"><span>{currentAnalysis.repository.owner}</span><b>/</b>{currentAnalysis.repository.name}<ExternalLink size={12} /></a></div>
       <div className="workspace-run-meta"><label><GitBranch size={14} /><Input aria-label="Analysis branch" value={branch} onChange={(event) => setBranch(event.target.value)} /></label><span className="commit-chip"><CircleDot size={12} />{currentAnalysis.commitSha.slice(0, 10)}</span><a className="commit-link" href={currentAnalysis.commitUrl} target="_blank" rel="noreferrer" aria-label="View analyzed commit"><ExternalLink size={13} /></a></div>
-      <div className="workspace-actions"><Button variant="secondary" size="sm" onClick={() => document.getElementById('change-impact')?.scrollIntoView({ block: 'start' })} aria-label="Open change impact analysis"><CircleDot size={14} /><span>Change impact</span></Button><Button variant="secondary" size="sm" onClick={reanalyze} aria-label="Reanalyze repository" disabled={loading || !branch.trim()}>{loading ? <LoaderCircle className="spin" size={14} /> : <RefreshCw size={14} />}<span>Reanalyze</span></Button><Button variant="ghost" size="sm" onClick={clearAnalysis} aria-label="Clear analysis"><Trash2 size={14} /><span>Clear</span></Button></div>
+      <div className="workspace-actions"><ThemeToggle /><Button variant="secondary" size="sm" onClick={() => document.getElementById('change-impact')?.scrollIntoView({ block: 'start' })} aria-label="Open change impact analysis"><CircleDot size={14} /><span>Change impact</span></Button><Button variant="secondary" size="sm" onClick={reanalyze} aria-label="Reanalyze repository" disabled={loading || !branch.trim()}>{loading ? <LoaderCircle className="spin" size={14} /> : <RefreshCw size={14} />}<span>Reanalyze</span></Button><Button variant="ghost" size="sm" onClick={clearAnalysis} aria-label="Clear analysis"><Trash2 size={14} /><span>Clear</span></Button></div>
     </header>
     {error && <div className="workspace-error" role="alert"><AlertTriangle size={15} />{error}<button onClick={() => setError('')} aria-label="Dismiss error">×</button></div>}
     <div className="workspace-grid">

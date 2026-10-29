@@ -33,3 +33,7 @@ The landing page pairs an actionable repository form with a clearly labeled illu
 The workspace retains repository context, file explorer, dependency map and inspector. Desktop panels sit alongside the canvas; tablet toolbars wrap; phone panels stack. Source previews, exported SVGs, analysis notes and change-impact controls follow the same light palette.
 
 Keep visible keyboard focus, native form labels, explicit loading/error states, reduced-motion support, and sufficient contrast. Do not change repository analysis or the evidence model to achieve a visual effect.
+
+## Color modes
+
+The header toggle switches between light and dark palettes on every page. First visits follow the device color scheme; explicit choices persist in local storage and synchronize between tabs. The initial theme is applied before the app loads. Dark mode uses charcoal surfaces, lavender actions and the same yellow accents, with matching source highlighting, graph controls and SVG exports.

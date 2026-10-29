@@ -3,7 +3,9 @@ import { Background, Controls, Handle, MarkerType, MiniMap, Position, ReactFlow,
 import { Download, FileCode2, Layers3, Package, Search, TriangleAlert, Workflow } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useTheme } from '@/features/theme/ThemeContext'
 import { renderGraphSvg } from '@/lib/graph/exportSvg'
+import { graphPalettes } from '@/lib/graph/palette'
 import { selectGraph, type GraphFilter, type GraphMode } from '@/lib/graph/transform'
 import type { AnalysisResultData } from '@/lib/validation/schemas'
 
@@ -23,6 +25,8 @@ function ArchNodeView({ data, selected }: NodeProps<ArchNode>) {
 }
 
 export function ArchitectureGraph({ result, selectedNodeId, onSelectNode }: { result: AnalysisResultData; selectedNodeId: string | null; onSelectNode: (id: string) => void }) {
+  const { theme } = useTheme()
+  const palette = graphPalettes[theme]
   const [mode, setMode] = useState<GraphMode>('overview')
   const [filter, setFilter] = useState<GraphFilter>({ files: true, packages: true, unresolved: true })
   const [query, setQuery] = useState('')
@@ -40,15 +44,15 @@ export function ArchitectureGraph({ result, selectedNodeId, onSelectNode }: { re
     target: edge.target,
     label: edge.label,
     type: 'smoothstep',
-    markerEnd: { type: MarkerType.ArrowClosed, color: edge.status === 'unresolved' ? '#a65b25' : '#8d8a82' },
-    style: { stroke: edge.status === 'unresolved' ? '#a65b25' : '#8d8a82', strokeWidth: 1.4, strokeDasharray: edge.status === 'unresolved' ? '4 4' : undefined },
-    labelStyle: { fill: '#555a6a', fontSize: 11 },
-    labelBgStyle: { fill: '#fbfaf7', fillOpacity: 0.95 },
+    markerEnd: { type: MarkerType.ArrowClosed, color: edge.status === 'unresolved' ? palette.unresolved : palette.edge },
+    style: { stroke: edge.status === 'unresolved' ? palette.unresolved : palette.edge, strokeWidth: 1.4, strokeDasharray: edge.status === 'unresolved' ? '4 4' : undefined },
+    labelStyle: { fill: palette.muted, fontSize: 11 },
+    labelBgStyle: { fill: palette.canvas, fillOpacity: 0.95 },
     labelBgPadding: [5, 3] as [number, number],
-  })), [graph.edges])
+  })), [graph.edges, palette])
 
   function exportSvg() {
-    const svg = renderGraphSvg(graph.nodes, graph.edges)
+    const svg = renderGraphSvg(graph.nodes, graph.edges, theme)
     const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }))
     const link = document.createElement('a')
     link.href = url
@@ -76,6 +80,7 @@ export function ArchitectureGraph({ result, selectedNodeId, onSelectNode }: { re
     <div className="graph-canvas">
       {nodes.length === 0 ? <div className="graph-empty">No nodes match the current filters.</div> : <ReactFlow
         nodes={nodes}
+        colorMode={theme}
         edges={edges}
         nodeTypes={nodeTypes}
         onNodeClick={(_, node) => onSelectNode(node.id)}
@@ -88,10 +93,8 @@ export function ArchitectureGraph({ result, selectedNodeId, onSelectNode }: { re
         elementsSelectable
         proOptions={{ hideAttribution: false }}
         defaultEdgeOptions={{ type: 'smoothstep' }}
-      ><Background color="#d4d1c7" gap={22} size={1} /><MiniMap pannable zoomable nodeColor={(node) => node.type === 'arch' ? colorFor((node.data as unknown as FlowNodeData).kind) : '#8d8a82'} maskColor="rgba(251, 250, 247, 0.75)" /><Controls showInteractive={false} /></ReactFlow>}
+      ><Background color={palette.dots} gap={22} size={1} /><MiniMap pannable zoomable nodeColor={(node) => node.type === 'arch' ? palette.minimapNodes[(node.data as unknown as FlowNodeData).kind] ?? palette.edge : palette.edge} maskColor={palette.minimapMask} /><Controls showInteractive={false} /></ReactFlow>}
     </div>
     {activeMode === 'overview' && <div className="graph-hint">Select <strong>Files</strong> to inspect source-level import links.</div>}
   </section>
 }
-
-function colorFor(kind: string) { return kind === 'project' ? '#7777ee' : kind === 'module' ? '#bca6df' : kind === 'file' ? '#8bbca0' : kind === 'package' ? '#e6c84e' : '#a65b25' }
