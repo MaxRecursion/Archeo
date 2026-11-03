@@ -43,21 +43,25 @@ flowchart LR
   API --> GH[Verify public repository; resolve refs to SHAs]
   GH --> FACTS[Compare pinned commits; retain bounded metadata]
   FACTS --> DEMO[Deterministic demo]
-  FACTS --> JEV[Consent + operator token: one Jev request]
+  FACTS --> LAYA[Consent + operator token: one Laya request]
   DEMO --> POLICY[TypeScript review policy]
-  JEV --> VALIDATE[Strict runtime response validation]
+  LAYA --> VALIDATE[Strict runtime response validation]
   VALIDATE --> POLICY
-  JEV --> FAIL[Unavailable: retain evidence]
+  LAYA --> FAIL[Unavailable: retain evidence]
   FAIL --> POLICY
   POLICY --> UI
 ```
 
-`changeAnalysis.ts` fetches real GitHub comparison metadata with a 14-second overall GitHub deadline. It excludes generated artifacts, lockfiles and credential files, retains at most 60 filename/status/addition/deletion records, and adds path heuristics. The GitHub comparison response is capped at 3 MiB. GitHub may return patches in that response; the application discards them. No source, patch, commit message, issue text or README content enters the Jev state. This feature does not run the graph analyzer again or measure transitive impact. Its input is deliberately less expressive than a semantic diff.
+`changeAnalysis.ts` fetches real GitHub comparison metadata with a 14-second overall GitHub deadline. It excludes generated artifacts, lockfiles and credential files, retains at most 60 filename/status/addition/deletion records (only the first 12 are forwarded to Laya), and adds path heuristics. The GitHub comparison response is capped at 3 MiB. GitHub may return patches in that response; the application discards them. No source, patch, commit message, issue text or README content enters the Laya state. This feature does not run the graph analyzer again or measure transitive impact. Its input is deliberately less expressive than a semantic diff.
 
-`lib/server/jev` owns the official SDK adapter, batched Choice/Score/Noul questions, deterministic demo and review policy. `src/lib/validation/changeImpact.ts` contains browser-safe Zod schemas and labels. The UI calls the same API for demo and live modes, and visibly identifies their provenance. Failure yields `mode: unavailable`, `decision: null`, retained facts, a safe error code and a conservative review recommendation.
+`lib/server/laya` owns the Laya HTTP adapter, batched Choice/Score/Noul questions, deterministic demo and review policy. `src/lib/validation/changeImpact.ts` contains browser-safe Zod schemas and labels. The UI calls the same API for demo and live modes, and visibly identifies their provenance. Failure yields `mode: unavailable`, `decision: null`, retained facts, a safe error code and a conservative review recommendation.
 
 The application has no user-account system. Public visibility is the repository authorization boundary. Live inference additionally requires a server-configured operator bearer token and explicit metadata-sharing consent. The token is entered as a password, retained only in component memory, and sent only on explicit live requests. It is never a frontend environment variable.
 
 The decision cache stores at most 32 results for five minutes per warm function instance. Its SHA-256 identity includes normalized facts, refs and SHAs, question/policy versions, model, mode and operator digest. Concurrent identical live requests share one promise. Public demo cache entries cannot be reused as live decisions. Cache hits still recheck repository visibility and resolve refs. There is no cross-user private data because private repositories are rejected before comparison. Cold starts discard the cache and instance limiter; neither is a distributed billing cap.
 
-See [Jev contract and operation](jev-integration.md), [security controls](SECURITY.md), and [evaluation](evaluation.md).
+See [Laya contract and operation](laya-integration.md), [security controls](SECURITY.md), and [evaluation](evaluation.md).
+
+## Current provider
+
+The hosted Jev adapter and SDK are removed. Laya is a separate Python model process. See [current Laya contract](laya-integration.md) and [setup](setup-keys.md); these supersede earlier Jev-era operating details. Local inference uses a 120-second timeout; Vercel uses 12 seconds and requires a reachable authenticated HTTPS backend. Every live decision requires human review pending domain evaluation.

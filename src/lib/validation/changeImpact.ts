@@ -58,8 +58,9 @@ const ScoreLegendSchema = z.object({
   '3': z.literal(IMPACT_LEVELS[3]), '4': z.literal(IMPACT_LEVELS[4]),
 }).strict()
 
-export const JevDecisionSchema = z.object({
-  model: z.string().min(1).max(100),
+export const DecisionSchema = z.object({
+  model: z.string().min(1).max(200),
+  evidenceTruncated: z.boolean().default(false),
   answers: z.object({
     classification: z.object({ type: z.literal('choice'), choice: CategorySchema, probabilities: ChoiceProbabilitiesSchema, confidence: probability }).strict(),
     impact: z.object({ type: z.literal('score'), score: z.number().finite().min(0).max(4), legend: ScoreLegendSchema, probabilities: ScoreProbabilitiesSchema, confidence: probability }).strict(),
@@ -79,7 +80,7 @@ export const JevDecisionSchema = z.object({
 export const ImpactResponseSchema = z.object({
   facts: ChangeFactsSchema,
   mode: z.enum(['mock', 'live', 'unavailable']),
-  decision: JevDecisionSchema.nullable(),
+  decision: DecisionSchema.nullable(),
   policy: z.object({ reviewRequired: z.boolean(), reasons: z.array(z.string().max(400)).max(20), uncertain: z.boolean() }).strict(),
   error: z.object({ code: z.string().max(60), message: z.string().max(400) }).strict().optional(),
   cached: z.boolean(),
@@ -87,5 +88,5 @@ export const ImpactResponseSchema = z.object({
 }).strict().refine((result) => result.mode === 'unavailable' ? result.decision === null : result.decision !== null, 'Mode must match decision availability.')
 
 export type ChangeFacts = z.infer<typeof ChangeFactsSchema>
-export type JevDecision = z.infer<typeof JevDecisionSchema>
+export type Decision = z.infer<typeof DecisionSchema>
 export type ImpactResponse = z.infer<typeof ImpactResponseSchema>

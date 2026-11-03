@@ -1,12 +1,12 @@
 // @vitest-environment node
 import { collectChangeFacts } from '../analysis/changeAnalysis.ts'
-import { askJev, JevError } from '../jev/client.ts'
-import { baselineDecision } from '../jev/mock.ts'
+import { askLaya, LayaError } from '../laya/client.ts'
+import { baselineDecision } from '../laya/mock.ts'
 import { decisionCacheKey, handleChangeImpact } from './changeImpact.ts'
 import type { ChangeFacts } from '../../../src/lib/validation/changeImpact.ts'
 
 vi.mock('../analysis/changeAnalysis.ts', () => ({ collectChangeFacts: vi.fn() }))
-vi.mock('../jev/client.ts', async (original) => ({ ...await original<typeof import('../jev/client.ts')>(), askJev: vi.fn() }))
+vi.mock('../laya/client.ts', async (original) => ({ ...await original<typeof import('../laya/client.ts')>(), askLaya: vi.fn() }))
 
 const TOKEN = 'test-operator-token-'.repeat(3)
 const facts: ChangeFacts = { repository: { owner: 'acme', name: 'demo' }, baseRef: 'main', headRef: 'next', baseSha: 'a'.repeat(40), headSha: 'b'.repeat(40), files: [{ path: 'README.md', status: 'modified', additions: 2, deletions: 1, signals: ['test-or-documentation-path'] }], totalChangedFiles: 1, partial: false, warnings: [] }
@@ -28,7 +28,7 @@ describe('change impact server boundary', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('cache-control')).toBe('no-store')
     expect(await response.json()).toMatchObject({ mode: 'mock', decision: { model: 'deterministic-demo-v1' } })
-    expect(askJev).not.toHaveBeenCalled()
+    expect(askLaya).not.toHaveBeenCalled()
   })
   it.each([{ repository: 'https://127.0.0.1/a/b' }, { baseRef: '../main' }, { headRef: 'bad?query' }, { mode: 'evil' }, { extra: true }])('rejects invalid input %j before fetching', async (body) => {
     expect((await handleChangeImpact(request(body))).status).toBe(400)
@@ -41,7 +41,7 @@ describe('change impact server boundary', () => {
   it('fails closed when live access is unconfigured', async () => {
     vi.stubEnv('CHANGE_IMPACT_ACCESS_TOKEN', '')
     expect((await handleChangeImpact(request({ mode: 'live' }))).status).toBe(503)
-    expect(askJev).not.toHaveBeenCalled()
+    expect(askLaya).not.toHaveBeenCalled()
   })
   it('requires valid operator credentials, same origin, and consent before collection', async () => {
     expect((await handleChangeImpact(request({ mode: 'live' }))).status).toBe(401)
@@ -50,28 +50,38 @@ describe('change impact server boundary', () => {
     expect((await handleChangeImpact(request({ mode: 'live' }, { authorization: `Bearer ${TOKEN}` }))).status).toBe(403)
     expect(collectChangeFacts).not.toHaveBeenCalled()
   })
+  it('reports a missing hosted model backend as service configuration, before collecting evidence', async () => {
+    vi.stubEnv('VERCEL', '1')
+    vi.stubEnv('LAYA_BASE_URL', '')
+    const response = await handleChangeImpact(request({ mode: 'live', consent: true }, { authorization: `Bearer ${TOKEN}` }))
+    expect(response.status).toBe(503)
+    expect(await response.json()).toMatchObject({ code: 'SERVICE_UNAVAILABLE' })
+    expect(collectChangeFacts).not.toHaveBeenCalled()
+  })
   it('returns a validated live result with policy and reuses the cached immutable decision', async () => {
-    vi.mocked(askJev).mockResolvedValue({ ...baselineDecision(facts), model: 'jev-1.14.0' })
+    vi.mocked(askLaya).mockResolvedValue({ ...baselineDecision(facts), model: 'typed-decisions' })
     const req = () => request({ mode: 'live', consent: true }, { authorization: `Bearer ${TOKEN}` })
     const response = await handleChangeImpact(req())
     expect(await response.json()).toMatchObject({ mode: 'live', cached: false })
     expect(await (await handleChangeImpact(req())).json()).toMatchObject({ mode: 'live', cached: true })
-    expect(askJev).toHaveBeenCalledTimes(1)
+    expect(askLaya).toHaveBeenCalledTimes(1)
   })
-  it.each(['JEV_AUTHENTICATION', 'JEV_RATE_LIMITED', 'JEV_TIMEOUT', 'JEV_INVALID_RESPONSE', 'JEV_UNAVAILABLE', 'JEV_FORBIDDEN'] as const)('preserves deterministic evidence on %s', async (code) => {
-    vi.mocked(askJev).mockRejectedValue(new JevError(code, 'Safe upstream failure.', 502))
+  it.each(['LAYA_AUTHENTICATION', 'LAYA_RATE_LIMITED', 'LAYA_TIMEOUT', 'LAYA_INVALID_RESPONSE', 'LAYA_UNAVAILABLE', 'LAYA_FORBIDDEN'] as const)('preserves deterministic evidence on %s', async (code) => {
+    vi.mocked(askLaya).mockRejectedValue(new LayaError(code, 'Safe upstream failure.', 502))
     const response = await handleChangeImpact(request({ mode: 'live', consent: true }, { authorization: `Bearer ${TOKEN}` }))
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject({ mode: 'unavailable', facts: { files: facts.files }, decision: null, policy: { reviewRequired: true, uncertain: true }, error: { code } })
   })
   it('redacts unexpected upstream messages', async () => {
-    vi.mocked(askJev).mockRejectedValue(new Error('secret-do-not-expose'))
+    vi.mocked(askLaya).mockRejectedValue(new Error('secret-do-not-expose'))
     const response = await handleChangeImpact(request({ mode: 'live', consent: true }, { authorization: `Bearer ${TOKEN}` }))
     expect(await response.text()).not.toContain('secret-do-not-expose')
   })
   it('isolates cache by identity, model, actor, mode and evidence', () => {
-    const key = decisionCacheKey(facts, 'live', 'alice', 'jev-1.14.0')
-    expect(decisionCacheKey(facts, 'live', 'alice', 'jev-1.14.0')).toBe(key)
-    for (const other of [decisionCacheKey(facts, 'mock', 'alice', 'jev-1.14.0'), decisionCacheKey(facts, 'live', 'bob', 'jev-1.14.0'), decisionCacheKey(facts, 'live', 'alice', 'jev-latest'), decisionCacheKey({ ...facts, partial: true }, 'live', 'alice', 'jev-1.14.0')]) expect(other).not.toBe(key)
+    const key = decisionCacheKey(facts, 'live', 'alice', 'typed-decisions')
+    expect(decisionCacheKey(facts, 'live', 'alice', 'typed-decisions')).toBe(key)
+    for (const other of [decisionCacheKey(facts, 'mock', 'alice', 'typed-decisions'), decisionCacheKey(facts, 'live', 'bob', 'typed-decisions'), decisionCacheKey(facts, 'live', 'alice', 'english'), decisionCacheKey({ ...facts, partial: true }, 'live', 'alice', 'typed-decisions')]) expect(other).not.toBe(key)
+    vi.stubEnv('LAYA_BASE_URL', 'https://other-model.example')
+    expect(decisionCacheKey(facts, 'live', 'alice', 'typed-decisions')).not.toBe(key)
   })
 })

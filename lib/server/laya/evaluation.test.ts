@@ -2,7 +2,7 @@
 import { expect, it } from 'vitest'
 import { runEvaluation } from './evaluation.js'
 
-it('reproduces the synthetic metadata-only demo evaluation (no live Jev)', () => {
+it('reproduces the synthetic metadata-only demo evaluation (no live Laya)', () => {
   const report = runEvaluation()
   console.info(JSON.stringify(report, null, 2))
   expect(report.datasetSize).toBe(10)

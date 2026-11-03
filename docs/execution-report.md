@@ -1,5 +1,7 @@
 # Jev integration execution report
 
+> Historical report: Jev has since been replaced with self-hosted Laya. Use [current setup](setup-keys.md) and [Laya integration](laya-integration.md); the original account/key activation instructions below no longer apply.
+
 Latest handoff: the completed light/dark implementation, execution checkpoint and [step-by-step key setup guide](setup-keys.md) accompany the main-branch source. The latest local validation passed lint, strict types, 82 unit/integration tests (one optional paid live test skipped), production build and dependency audit. The full browser suite has 15 scenarios, including six theme scenarios. Independent light/dark desktop and 320px visual checks passed. Earlier deployment records below remain historical evidence; new deployments follow main through the existing Git integration.
 
 28 October 2026, Asia/Kolkata. No credentials are included. Code and documentation are published; live paid inference remains blocked on account configuration.

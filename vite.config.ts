@@ -68,7 +68,7 @@ async function readBody(req: IncomingMessage, maxBytes: number): Promise<string>
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  for (const name of ['GITHUB_TOKEN', 'TYPESAFE_API_KEY', 'TYPESAFE_MODEL', 'CHANGE_IMPACT_ACCESS_TOKEN']) {
+  for (const name of ['GITHUB_TOKEN', 'LAYA_BASE_URL', 'LAYA_API_KEY', 'LAYA_MODEL', 'CHANGE_IMPACT_ACCESS_TOKEN']) {
     if (!process.env[name] && env[name]) process.env[name] = env[name]
   }
   return {

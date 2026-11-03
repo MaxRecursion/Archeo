@@ -76,3 +76,17 @@ The user also has an active redesign chat in the original checkout. User explici
 - Independent visual review found light/dark landing and workspace readable at 1440px and 320px, with no page errors or horizontal overflow.
 - Added `docs/setup-keys.md` and README activation link: verified public-read GitHub token permissions, official TypeSafe account/key/credits links, four Vercel variable names, redeployment, explicit live UI flow and optional local smoke.
 - Provider and operator secrets remain outside Git. No live inference or purchase was performed during this handoff.
+
+
+## Laya replacement — 2026-11-03
+
+This checkpoint supersedes earlier Jev account/key activation instructions.
+
+- Removed the TypeSafe SDK and hosted Jev runtime. Native Laya HTTP transport batches Choice/Score/Noul, validates probability/rubric consistency, preserves truncation signals, redacts failures and retains deterministic evidence.
+- Added a pinned Python 3.12+ runtime, `npm run laya:setup`, `npm run laya:serve`, loopback defaults, optional local service authentication, and authenticated HTTPS configuration for hosted inference. Weights and local credentials are excluded from Git.
+- Installed Laya 0.4.21 locally. The real CPU server loaded typed-decisions revision `7b928d828b7b0e022f929d9bd2e44165aa270148`. Synthetic `npm run test:live` passed in 929 ms; response model identifier was `laya-rl-agent`.
+- Real Chromium smoke used the actual application API, real `developit/mitt` graph/comparison and local model, with no HTTP mocks. Live result rendered, one evidence row, mandatory human review, no page errors; comparison observed 1,727 ms. These are individual smoke observations, not benchmarks or quality measurements. Screenshot: `/tmp/archeo-laya-real-browser.png`.
+- Lint, TypeScript, 86 unit/integration tests, production build, production dependency audit (zero vulnerabilities), and all 15 Playwright scenarios passed. The optional live model test remains separate from ordinary CI.
+- Created an independent random operator password in ignored `.env.local` without exposing it. The local UI can use this password; no purchased provider key is needed. GitHub public-read token is optional.
+- Updated active setup/architecture/security docs, UI provenance and concentration wording, plus the portfolio Laya label. Every live Laya assessment requires human review until domain evaluation supports a different policy.
+- Production remains a labeled demo until a persistent HTTPS Laya backend and matching service/operator credentials are configured. Vercel currently has no environment variables; no remote model host or paid infrastructure was created.

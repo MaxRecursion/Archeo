@@ -1,8 +1,8 @@
-import { CATEGORY_LABELS, IMPACT_LEVELS, JevDecisionSchema, type ChangeCategory, type ChangeFacts, type JevDecision } from '../../../src/lib/validation/changeImpact.js'
+import { CATEGORY_LABELS, IMPACT_LEVELS, DecisionSchema, type ChangeCategory, type ChangeFacts, type Decision } from '../../../src/lib/validation/changeImpact.js'
 import { pathSignals } from './policy.js'
 
-/** Deterministic demonstration only. No Jev inference or measured model probabilities. */
-export function baselineDecision(facts: ChangeFacts): JevDecision {
+/** Deterministic demonstration only. No Laya inference or measured model probabilities. */
+export function baselineDecision(facts: ChangeFacts): Decision {
   const signals = facts.files.flatMap((file) => [...pathSignals(file.path), ...file.signals])
   let category: ChangeCategory = 'business_logic_change'
   let level = facts.files.length > 12 ? 3 : facts.files.length > 3 ? 2 : 1
@@ -18,7 +18,7 @@ export function baselineDecision(facts: ChangeFacts): JevDecision {
   const labels = Object.keys(CATEGORY_LABELS) as ChangeCategory[]
   const probabilities = Object.fromEntries(labels.map((key) => [key, key === category ? 0.86 : 0.02]))
   const impactProbabilities = Object.fromEntries(IMPACT_LEVELS.map((_, index) => [String(index), index === level ? 1 : 0]))
-  return JevDecisionSchema.parse({
+  return DecisionSchema.parse({
     model: 'deterministic-demo-v1',
     answers: {
       classification: { type: 'choice', choice: category, probabilities, confidence },

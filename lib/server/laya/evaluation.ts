@@ -48,5 +48,5 @@ export function runEvaluation() {
       reviewAccuracy: (tp + tn) / rows.length, truePositives: tp, falsePositives: fp, falseNegatives: fn, trueNegatives: tn,
       precision: tp / (tp + fp), recall: tp / (tp + fn) }
   }
-  return { datasetSize: rows.length, mode: 'deterministic-demo; no live Jev measurements', demo: metrics('demo'), baseline: metrics('baseline'), rows }
+  return { datasetSize: rows.length, mode: 'deterministic-demo; no live Laya measurements', demo: metrics('demo'), baseline: metrics('baseline'), rows }
 }

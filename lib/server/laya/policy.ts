@@ -1,6 +1,6 @@
-import type { ChangeFacts, JevDecision, ImpactResponse } from '../../../src/lib/validation/changeImpact.js'
+import type { ChangeFacts, Decision, ImpactResponse } from '../../../src/lib/validation/changeImpact.js'
 
-export const POLICY_VERSION = 'review-policy-v1'
+export const POLICY_VERSION = 'laya-review-policy-v1'
 
 export function pathSignals(path: string): string[] {
   const signals: string[] = []
@@ -13,7 +13,7 @@ export function pathSignals(path: string): string[] {
   return signals
 }
 
-export function applyChangeImpactPolicy(facts: ChangeFacts, decision: JevDecision | null): ImpactResponse['policy'] {
+export function applyChangeImpactPolicy(facts: ChangeFacts, decision: Decision | null): ImpactResponse['policy'] {
   const reasons: string[] = []
   let uncertain = facts.partial || facts.files.length === 0
   if (facts.partial) reasons.push('The evidence is incomplete; inspect the full change before deciding.')
@@ -21,7 +21,7 @@ export function applyChangeImpactPolicy(facts: ChangeFacts, decision: JevDecisio
   if (facts.files.some((file) => [...pathSignals(file.path), ...file.signals].includes('security-boundary-path'))) reasons.push('A security-sensitive path changed; run independent checks and request human review. This is a path heuristic, not a vulnerability finding.')
   if (!decision) {
     uncertain = true
-    reasons.push('The Jev assessment is unavailable; deterministic evidence remains available.')
+    reasons.push('The Laya assessment is unavailable; deterministic evidence remains available.')
   } else {
     const { classification, impact, review } = decision.answers
     if (impact.score >= 2.5) reasons.push('Potential impact meets the application review threshold (2.5 on the 0–4 rubric).')
@@ -36,6 +36,7 @@ export function applyChangeImpactPolicy(facts: ChangeFacts, decision: JevDecisio
       reasons.push('Impact and review signals disagree; inspect the evidence.')
     }
   }
+  if (decision && decision.model !== 'deterministic-demo-v1') { uncertain = true; reasons.push('Laya is an experimental, uncalibrated assessor for this task. Human review is required regardless of its reported concentration or probability.') }
   const reviewRequired = reasons.length > 0
   if (!reviewRequired) reasons.push('No escalation threshold was reached. This assessment does not approve a merge or establish that code is safe.')
   return { reviewRequired, reasons, uncertain }

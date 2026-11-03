@@ -1,10 +1,10 @@
 # Change-impact evaluation
 
-Measured on 28 October 2026. **These results evaluate deterministic demo heuristics, not Jev. No live model accuracy, latency, token use or cost has been measured.**
+Measured on 28 October 2026. **These results evaluate deterministic demo heuristics, not Laya. No live model accuracy, latency, token use or cost has been measured.**
 
 ## Dataset
 
-Ten hand-authored, synthetic, non-sensitive scenarios are stored in `lib/server/jev/evaluation.ts`. Expected categories and review labels were written from scenario intent independently of the outputs. Inputs consist only of paths and synthetic added/deleted line counts; they do not include source diffs. A narrow documentation-only baseline labels documentation/tests accordingly, labels every other case business logic, and requests review for every non-documentation case.
+Ten hand-authored, synthetic, non-sensitive scenarios are stored in `lib/server/laya/evaluation.ts`. Expected categories and review labels were written from scenario intent independently of the outputs. Inputs consist only of paths and synthetic added/deleted line counts; they do not include source diffs. A narrow documentation-only baseline labels documentation/tests accordingly, labels every other case business logic, and requests review for every non-documentation case.
 
 | Scenario | Expected category | Review | Label rationale |
 | --- | --- | --- | --- |
@@ -38,7 +38,7 @@ The demo misclassifies the localized helper refactor as business logic: the file
 
 ```sh
 npm ci
-npx vitest run lib/server/jev/evaluation.test.ts --reporter=verbose
+npx vitest run lib/server/laya/evaluation.test.ts --reporter=verbose
 ```
 
 The command prints the dataset size, mode, aggregate metrics and every prediction/label row, and asserts the recorded counts. Full validation also runs this evaluation through `npm test`.
@@ -47,6 +47,6 @@ The command prints the dataset size, mode, aggregate metrics and every predictio
 
 This tiny, deliberately simple dataset is development coverage, not statistical evidence of real-world accuracy or safety. The same engineer authored labels and heuristics; this is not a held-out benchmark, an independent human study or proof of calibration. Broad changes and security boundaries need source inspection and independent tests. A public path may resemble a sensitive file without changing enforcement, or hide sensitive behavior under an ordinary name.
 
-Demo probability maps are illustrative fixed numbers. They cannot be used to measure probability calibration or confidence quality. The reported gains compare two deterministic rulesets and establish no advantage of Jev over a baseline.
+Demo probability maps are illustrative fixed numbers. They cannot be used to measure probability calibration or confidence quality. The reported gains compare two deterministic rulesets and establish no advantage of Laya over a baseline.
 
 Once authorized credentials exist, freeze these labels and question/model versions, run the same normalized states through the pinned official adapter with explicit paid-call authorization, record actual returned model and usage, and publish raw non-sensitive predictions plus latency and aggregate metrics. Keep these deterministic results as a separate comparison and expand to a held-out dataset with actual bounded public-change evidence before tuning thresholds.

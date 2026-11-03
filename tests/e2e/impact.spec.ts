@@ -43,7 +43,7 @@ test('demo assessment shows provenance, continuous score, Noul probability, evid
   await enterWorkspace(page)
   await page.getByLabel('Base branch or commit').focus()
   await page.keyboard.press('Enter')
-  await expect(page.getByText('DEMO · SIMULATED DECISIONS · NOT LIVE JEV')).toBeVisible()
+  await expect(page.getByText('DEMO · SIMULATED DECISIONS · NOT LIVE LAYA')).toBeVisible()
   expect(request).toEqual({ repository: 'sample/project', baseRef: 'main', headRef: HEAD, mode: 'mock', consent: false })
   await expect(page.getByText('2.50 / 4')).toBeVisible()
   await expect(page.getByText('87.0%', { exact: true })).toBeVisible()
@@ -56,7 +56,7 @@ test('demo assessment shows provenance, continuous score, Noul probability, evid
   await expect(page.getByText('Security-sensitive change: 72.0%')).toBeVisible()
   await page.locator('.impact-panel').screenshot({ path: test.info().outputPath('change-impact-desktop.png') })
   await page.getByRole('button', { name: 'Rerun change impact' }).click()
-  await expect(page.getByText('DEMO · SIMULATED DECISIONS · NOT LIVE JEV')).toBeVisible()
+  await expect(page.getByText('DEMO · SIMULATED DECISIONS · NOT LIVE LAYA')).toBeVisible()
 })
 
 test('loading and rate-limit errors remain useful and preserve architecture', async ({ page }) => {
@@ -77,12 +77,12 @@ test('loading and rate-limit errors remain useful and preserve architecture', as
 })
 
 test('unavailable service shows deterministic fallback and incomplete evidence', async ({ page }) => {
-  const unavailable: ImpactResponse = { ...impact, mode: 'unavailable', decision: null, facts: { ...impact.facts, partial: true, warnings: ['Only the first 40 files are included.'] }, error: { code: 'JEV_UNAVAILABLE', message: 'Jev is temporarily unavailable.' } }
+  const unavailable: ImpactResponse = { ...impact, mode: 'unavailable', decision: null, facts: { ...impact.facts, partial: true, warnings: ['Only the first 40 files are included.'] }, error: { code: 'LAYA_UNAVAILABLE', message: 'Laya is temporarily unavailable.' } }
   await page.route('**/api/change-impact', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(unavailable) }))
   await enterWorkspace(page)
   await page.getByRole('button', { name: 'Analyze change impact' }).click()
-  await expect(page.getByText('JEV UNAVAILABLE · DETERMINISTIC EVIDENCE ONLY')).toBeVisible()
-  await expect(page.getByRole('alert')).toContainText('Jev is temporarily unavailable')
+  await expect(page.getByText('LAYA UNAVAILABLE · DETERMINISTIC EVIDENCE ONLY')).toBeVisible()
+  await expect(page.getByRole('alert')).toContainText('Laya is temporarily unavailable')
   await expect(page.getByText(/Uncertain or incomplete assessment/)).toBeVisible()
   await page.getByText('Deterministic evidence (1 of 1 changed files)').click()
   await expect(page.getByText('Partial analysis: the evidence does not cover the complete change.')).toBeVisible()
@@ -95,16 +95,16 @@ test('live mode requires consent and operator token, sends neither in request bo
   await page.route('**/api/change-impact', async (route) => {
     request = route.request().postDataJSON()
     authorization = route.request().headers().authorization
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ...impact, mode: 'live', decision: { ...decision, model: 'jev-1.14.0' } }) })
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ...impact, mode: 'live', decision: { ...decision, model: 'typed-decisions' } }) })
   })
   await enterWorkspace(page)
-  await page.getByLabel('Use live Jev (requires operator access)').check()
+  await page.getByLabel('Use live Laya (requires operator access)').check()
   await expect(page.getByRole('button', { name: 'Analyze change impact' })).toBeDisabled()
   await page.getByLabel('Operator access token', { exact: true }).fill('test-operator-token')
   await expect(page.getByRole('button', { name: 'Analyze change impact' })).toBeDisabled()
   await page.getByLabel(/I consent to sending this public repository/).check()
   await page.getByRole('button', { name: 'Analyze change impact' }).click()
-  await expect(page.getByText('LIVE JEV · TYPESAFE AI')).toBeVisible()
+  await expect(page.getByText('LIVE LAYA · SELF-HOSTED')).toBeVisible()
   expect(authorization).toBe('Bearer test-operator-token')
   expect(request).toEqual({ repository: 'sample/project', baseRef: 'main', headRef: HEAD, mode: 'live', consent: true })
 })
@@ -120,5 +120,5 @@ test('empty comparisons and evidence remain readable on a phone', async ({ page 
   expect((bounds?.x ?? 0) + (bounds?.width ?? 0)).toBeLessThanOrEqual(390)
   await page.locator('.impact-panel').screenshot({ path: test.info().outputPath('change-impact-phone.png') })
   await page.getByLabel('Base branch or commit').fill('feature')
-  await expect(page.getByText('DEMO · SIMULATED DECISIONS · NOT LIVE JEV')).toHaveCount(0)
+  await expect(page.getByText('DEMO · SIMULATED DECISIONS · NOT LIVE LAYA')).toHaveCount(0)
 })

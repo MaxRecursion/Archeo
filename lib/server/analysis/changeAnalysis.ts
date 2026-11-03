@@ -1,5 +1,5 @@
 import type { ChangeFacts } from '../../../src/lib/validation/changeImpact.js'
-import { pathSignals } from '../jev/policy.js'
+import { pathSignals } from '../laya/policy.js'
 import { GitHubClient } from '../github/client.js'
 import { SafeError } from '../security/errors.js'
 import { parseRepository, validateBranch, validateRepositoryPath } from '../security/validation.js'
